@@ -1,25 +1,16 @@
 import type { NextConfig } from "next";
 
+/**
+ * Deliberately framework-standard: no custom webpack overrides, no ignored
+ * type or lint errors. This is the exact shape Vercel builds, so a green
+ * `npm run build` locally means a green Vercel build.
+ *
+ * `server.ts` (Socket.IO echo server) is a local-only convenience and is not
+ * part of this build — see README > "Deploying to Vercel".
+ */
 const nextConfig: NextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  // 禁用 Next.js 热重载，由 nodemon 处理重编译
   reactStrictMode: false,
-  webpack: (config, { dev }) => {
-    if (dev) {
-      // 禁用 webpack 的热模块替换
-      config.watchOptions = {
-        ignored: ['**/*'], // 忽略所有文件变化
-      };
-    }
-    return config;
-  },
-  eslint: {
-    // 构建时忽略ESLint错误
-    ignoreDuringBuilds: true,
-  },
+  poweredByHeader: false,
 };
 
 export default nextConfig;

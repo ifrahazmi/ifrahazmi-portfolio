@@ -18,20 +18,37 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
 });
 
+const tagline = "Automation Test Engineer | Embedded, Industrial (OT) & AI Automation";
+const description =
+  "Automation Test Engineer with 5+ years building Python and Robot Framework automation for embedded instruments, industrial (OT) networks and wireless medical devices — SCPI precision instruments, BLE/Wi-Fi protocol validation, AI test-case generation and OT security testing.";
+
 export const metadata: Metadata = {
-  title: "Ifrahuddin Azmi | Technology Leader",
-  description: "Embedded & Automation Test Engineer skilled in Python, BLE/Wi-Fi protocol testing, and cloud-integrated systems.",
-  keywords: ["Ifrahuddin Azmi", "Embedded Systems", "Automation Testing", "Python", "BLE", "WiFi", "Test Engineer"],
+  title: `Ifrahuddin Azmi | ${tagline}`,
+  description,
+  keywords: [
+    "Ifrahuddin Azmi",
+    "Automation Test Engineer",
+    "Robot Framework",
+    "Python",
+    "SCPI",
+    "BLE",
+    "Wi-Fi",
+    "OT security",
+    "Embedded testing",
+    "Azure AI Foundry",
+    "Wireshark",
+    "Scapy",
+  ],
   authors: [{ name: "Ifrahuddin Azmi" }],
   openGraph: {
-    title: "Ifrahuddin Azmi | Technology Leader",
-    description: "Embedded & Automation Test Engineer skilled in Python, BLE/Wi-Fi protocol testing, and cloud-integrated systems.",
+    title: `Ifrahuddin Azmi | ${tagline}`,
+    description,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ifrahuddin Azmi | Technology Leader",
-    description: "Embedded & Automation Test Engineer skilled in Python, BLE/Wi-Fi protocol testing, and cloud-integrated systems.",
+    title: `Ifrahuddin Azmi | ${tagline}`,
+    description,
   },
 };
 

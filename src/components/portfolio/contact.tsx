@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { Check, Copy, Github, Linkedin, Mail, MapPin, Send } from "lucide-react";
+import { Check, Copy, Github, Linkedin, Loader2, Mail, MapPin, Phone, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { profile } from "./data";
 import { Reveal, SectionHeading } from "./motion";
 
 type FormState = { name: string; email: string; message: string };
 type FormErrors = Partial<Record<keyof FormState, string>>;
+type Status = "idle" | "sending" | "sent" | "error";
 
 const emptyForm: FormState = { name: "", email: "", message: "" };
 
@@ -16,6 +17,8 @@ export function Contact() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [errors, setErrors] = useState<FormErrors>({});
   const [copied, setCopied] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
+  const [serverError, setServerError] = useState("");
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
@@ -35,19 +38,46 @@ export function Contact() {
     return Object.keys(next).length === 0;
   };
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    if (status === "sending") return;
+    setServerError("");
     if (!validate()) return;
 
-    const subject = encodeURIComponent(`Portfolio enquiry from ${form.name}`);
-    const body = encodeURIComponent(`${form.message}\n\n—\n${form.name}\n${form.email}`);
-    window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
+    const honeypot = (event.currentTarget as HTMLFormElement & { company?: { value: string } }).company?.value ?? "";
+    setStatus("sending");
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          company: honeypot,
+          pageUrl: window.location.href,
+          referrer: document.referrer,
+        }),
+      });
 
-    toast({
-      title: "Opening your email app…",
-      description: `Your message is pre-filled and ready to send to ${profile.email}.`,
-    });
-    setForm(emptyForm);
+      const data = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+        errors?: FormErrors;
+      };
+
+      if (!response.ok || !data.ok) {
+        setStatus("error");
+        if (data.errors) setErrors(data.errors);
+        setServerError(data.error ?? "Something went wrong. Please try again.");
+        return;
+      }
+
+      setStatus("sent");
+      setForm(emptyForm);
+      setErrors({});
+    } catch {
+      setStatus("error");
+      setServerError(`The message could not be sent. You can email me directly at ${profile.email}.`);
+    }
   };
 
   const copyEmail = async () => {
@@ -78,8 +108,8 @@ export function Contact() {
           />
         </Reveal>
 
-        <Reveal delay={120}>
-          <div className="edge-glow surface grid overflow-hidden rounded-3xl lg:grid-cols-[0.95fr_1.05fr]">
+        <Reveal from="scale" delay={120}>
+          <div className="edge-glow-anim surface grid overflow-hidden rounded-3xl lg:grid-cols-[0.95fr_1.05fr]">
             {/* Details */}
             <div className="border-b border-slate-800/70 p-8 sm:p-10 lg:border-r lg:border-b-0">
               <h3 className="font-display text-xl font-semibold text-white">Direct lines</h3>
@@ -101,9 +131,22 @@ export function Contact() {
                     <span className="block truncate text-sm text-slate-200">{profile.email}</span>
                   </span>
                   <span className="text-slate-500 transition-colors group-hover:text-sky-300">
-                    {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                    {copied ? <Check className="pop-in h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
                   </span>
                 </button>
+
+                <a
+                  href={`tel:${profile.phone.replace(/\s+/g, "")}`}
+                  className="group flex items-center gap-4 rounded-2xl border border-slate-800/80 bg-slate-950/40 p-4 transition-all duration-300 hover:border-sky-400/40 hover:bg-slate-900/60"
+                >
+                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-teal-400/12 text-teal-300 ring-1 ring-teal-400/20">
+                    <Phone className="h-4 w-4" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block text-[0.68rem] tracking-[0.16em] text-slate-500 uppercase">Phone</span>
+                    <span className="block text-sm text-slate-200">{profile.phone}</span>
+                  </span>
+                </a>
 
                 <a
                   href={profile.links.linkedin}
@@ -159,10 +202,36 @@ export function Contact() {
             <div className="p-8 sm:p-10">
               <h3 className="font-display text-xl font-semibold text-white">Send a message</h3>
               <p className="mt-3 text-sm text-slate-400">
-                Fill this in and your mail client opens with everything pre-filled — no inbox left behind.
+                Written here and delivered straight to my inbox — with a copy of where it came from.
               </p>
 
+              {status === "sent" ? (
+                <div className="pop-in mt-8 rounded-2xl border border-emerald-400/25 bg-emerald-400/5 p-7 text-center">
+                  <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-emerald-400/12 text-emerald-300 ring-1 ring-emerald-400/25">
+                    <Check className="h-7 w-7" />
+                  </span>
+                  <h4 className="font-display mt-5 text-lg font-semibold text-white">Message sent</h4>
+                  <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate-400">
+                    It landed in my inbox just now — I usually reply within a day. Thanks for taking the time.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setStatus("idle")}
+                    className="mt-6 inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-white/5 px-5 py-2.5 text-sm font-medium text-slate-200 transition-colors hover:border-sky-400/50 hover:text-white"
+                  >
+                    Send another message
+                  </button>
+                </div>
+              ) : (
               <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
+                <input
+                  type="text"
+                  name="company"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-[-9999px] h-0 w-0 opacity-0"
+                />
                 <div>
                   <label htmlFor="name" className="mb-2 block text-xs font-medium tracking-wide text-slate-400">
                     Your name
@@ -214,14 +283,31 @@ export function Contact() {
                   {errors.message && <p className="mt-2 text-xs text-rose-400">{errors.message}</p>}
                 </div>
 
+                {serverError && (
+                  <p role="alert" className="rounded-xl border border-rose-500/30 bg-rose-500/8 px-4 py-3 text-xs leading-relaxed text-rose-300">
+                    {serverError}
+                  </p>
+                )}
+
                 <button
                   type="submit"
-                  className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-sky-500/40"
+                  disabled={status === "sending"}
+                  className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-sky-500/40 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
                 >
-                  <Send className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-                  Send message
+                  <span aria-hidden className="shine-bar" />
+                  {status === "sending" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                  )}
+                  {status === "sending" ? "Sending…" : "Send message"}
                 </button>
+
+                <p className="text-center text-[0.7rem] text-slate-500">
+                  Delivered straight to my inbox · I reply to the address you leave above.
+                </p>
               </form>
+              )}
             </div>
           </div>
         </Reveal>

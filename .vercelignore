@@ -1,0 +1,8 @@
+# Keep local secrets and noise out of the deployed bundle.
+.env
+.env.*
+!.env.example
+*.log
+dev-server.log
+server.log
+.vercel

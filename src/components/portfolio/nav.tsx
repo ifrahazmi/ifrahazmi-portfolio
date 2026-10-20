@@ -82,7 +82,7 @@ export function Nav() {
                 )}
               >
                 {active === item.id && (
-                  <span className="absolute inset-0 rounded-full border border-sky-400/25 bg-sky-400/10" />
+                  <span className="pop-in absolute inset-0 rounded-full border border-sky-400/25 bg-sky-400/10" />
                 )}
                 <span className="relative">{item.label}</span>
               </a>
@@ -96,7 +96,7 @@ export function Nav() {
               className="hidden items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-sm font-medium text-slate-100 ring-1 ring-slate-700/70 transition-all duration-300 hover:bg-sky-500/15 hover:ring-sky-400/50 sm:inline-flex"
             >
               <Download className="h-4 w-4" />
-              Résumé
+              Resume
             </a>
             <button
               type="button"
@@ -130,7 +130,7 @@ export function Nav() {
                 className="mt-2 inline-flex items-center gap-2 rounded-lg bg-sky-500/15 px-3 py-3 text-sm font-medium text-sky-200"
               >
                 <Download className="h-4 w-4" />
-                Download résumé
+                Download resume
               </a>
             </div>
           </div>

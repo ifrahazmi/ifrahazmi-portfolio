@@ -231,10 +231,12 @@
 }
 
 /* Hairline gradient border for emphasised cards */
-.edge-glow {
+.edge-glow,
+.edge-glow-anim {
   position: relative;
 }
-.edge-glow::after {
+.edge-glow::after,
+.edge-glow-anim::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -294,19 +296,59 @@
   mix-blend-mode: overlay;
 }
 
-/* Scroll reveal */
+/* Scroll reveal — base + directional variants */
 .reveal {
   opacity: 0;
   transform: translateY(26px);
   transition:
     opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.85s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
+}
+
+.reveal.from-left {
+  transform: translateX(-36px);
+}
+
+.reveal.from-right {
+  transform: translateX(36px);
+}
+
+.reveal.from-scale {
+  transform: scale(0.94);
+}
+
+.reveal.from-blur {
+  filter: blur(12px);
+  transform: translateY(16px);
 }
 
 .reveal.is-visible {
   opacity: 1;
   transform: none;
+  filter: none;
+}
+
+/* Staggered children — set --i on each item */
+.stagger-li {
+  opacity: 0;
+}
+
+.reveal.is-visible .stagger-li {
+  animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 65ms);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Rotating conic ring (avatar) */
@@ -319,6 +361,27 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Orbiting satellites around the portrait */
+.orbit-slow {
+  animation: spin-slow 26s linear infinite;
+}
+
+.orbit-reverse {
+  animation: spin-slow 19s linear infinite reverse;
+}
+
+.orbit-satellite {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 7px;
+  width: 7px;
+  translate: -50% -50%;
+  border-radius: 9999px;
+  background: currentColor;
+  box-shadow: 0 0 12px 2px currentColor;
 }
 
 /* Timeline node pulse */
@@ -387,6 +450,246 @@
 @keyframes float-y {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
+}
+
+/* ==========================================================================
+   Motion layer — shared accents used across the page
+   ========================================================================== */
+
+/* Diagonal light sweep across a card on hover (needs .group on the parent) */
+.shine-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 55%;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(186, 230, 253, 0.13) 45%,
+    rgba(255, 255, 255, 0.06) 55%,
+    transparent 100%
+  );
+  transform: translateX(-160%) skewX(-16deg);
+}
+
+.group:hover .shine-bar,
+.group:focus-within .shine-bar {
+  animation: shine-sweep 1.05s ease-out;
+}
+
+@keyframes shine-sweep {
+  0% {
+    opacity: 1;
+    transform: translateX(-160%) skewX(-16deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(340%) skewX(-16deg);
+  }
+}
+
+/* Timeline: legible gradient year mark */
+.timeline-year {
+  background-image: linear-gradient(180deg, #e0f2fe 0%, #38bdf8 44%, rgba(99, 102, 241, 0.5) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 6px 26px rgba(56, 189, 248, 0.35));
+  animation: year-float 7.5s ease-in-out infinite;
+}
+
+@keyframes year-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Timeline rail that reads as flowing current */
+.rail-flow {
+  background-image: linear-gradient(
+    180deg,
+    rgba(56, 189, 248, 0.8) 0%,
+    rgba(129, 140, 248, 0.45) 32%,
+    rgba(56, 189, 248, 0.7) 58%,
+    rgba(99, 102, 241, 0.08) 100%
+  );
+  background-size: 100% 220%;
+  animation: rail-flow 7s ease-in-out infinite;
+}
+
+@keyframes rail-flow {
+  0%,
+  100% {
+    background-position: 50% 0%;
+  }
+  50% {
+    background-position: 50% 100%;
+  }
+}
+
+/* Numbers that breathe */
+.glow-pulse {
+  animation: glow-pulse 3.6s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 0 rgba(56, 189, 248, 0);
+  }
+  50% {
+    text-shadow: 0 0 28px rgba(56, 189, 248, 0.45);
+  }
+}
+
+/* Section hairline that draws itself in once revealed */
+.heading-rule {
+  opacity: 0.35;
+  transform: scaleX(0.15);
+  transform-origin: center;
+}
+
+.reveal.is-visible .heading-rule {
+  animation: rule-grow 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes rule-grow {
+  from {
+    opacity: 0.35;
+    transform: scaleX(0.15);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+/* Living gradient border (pair with .edge-glow) */
+.edge-glow-anim::after {
+  background-size: 240% 240%;
+  animation: border-drift 8s ease-in-out infinite;
+}
+
+@keyframes border-drift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Icon tile that lifts while its card is hovered */
+.tile-float {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.group:hover .tile-float {
+  animation: tile-float 2.4s ease-in-out infinite;
+}
+
+@keyframes tile-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1.06);
+  }
+  50% {
+    transform: translateY(-4px) rotate(3deg) scale(1.06);
+  }
+}
+
+/* Small state change (copy confirmation, nav pill, counters) */
+.pop-in {
+  animation: pop-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slow scan sweep across the portrait */
+.scanline::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 38%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(56, 189, 248, 0.22) 50%,
+    transparent 100%
+  );
+  animation: scan 6.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-45%);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.85;
+  }
+  82% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(225%);
+    opacity: 0;
+  }
+}
+
+/* Hero scroll cue */
+.bounce-soft {
+  animation: bounce-soft 2.4s ease-in-out infinite;
+}
+
+@keyframes bounce-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(7px);
+    opacity: 1;
+  }
+}
+
+/* Page-wide cursor spotlight */
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -5;
+  width: 46rem;
+  height: 46rem;
+  margin: -23rem 0 0 -23rem;
+  border-radius: 9999px;
+  pointer-events: none;
+  will-change: transform;
+  background: radial-gradient(
+    circle,
+    rgba(56, 189, 248, 0.11),
+    rgba(129, 140, 248, 0.055) 40%,
+    transparent 68%
+  );
 }
 
 /* Accessibility: honour reduced-motion */

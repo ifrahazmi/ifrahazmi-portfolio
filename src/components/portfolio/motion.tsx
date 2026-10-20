@@ -3,15 +3,20 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/** Fades + lifts children into view once they enter the viewport. */
+/** Direction the element travels from as it fades in. */
+export type RevealFrom = "up" | "left" | "right" | "scale" | "blur";
+
+/** Fades + moves children into view once they enter the viewport. */
 export function Reveal({
   children,
   className,
   delay = 0,
+  from = "up",
 }: {
   children: ReactNode;
   className?: string;
   delay?: number;
+  from?: RevealFrom;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -41,7 +46,12 @@ export function Reveal({
   return (
     <div
       ref={ref}
-      className={cn("reveal", visible && "is-visible", className)}
+      className={cn(
+        "reveal",
+        from !== "up" && `from-${from}`,
+        visible && "is-visible",
+        className,
+      )}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
@@ -165,7 +175,7 @@ export function SectionHeading({
     <div className="mx-auto mb-12 max-w-2xl text-center">
       <span className="font-mono-ui text-xs tracking-[0.28em] text-sky-400/90 uppercase">{eyebrow}</span>
       <h2 className="font-display mt-3 text-3xl font-bold text-white sm:text-4xl md:text-[2.5rem]">{title}</h2>
-      <div className="mx-auto mt-5 h-px w-24 bg-gradient-to-r from-transparent via-sky-400/70 to-transparent" />
+      <div className="heading-rule mx-auto mt-5 h-px w-24 bg-gradient-to-r from-transparent via-sky-400/70 to-transparent" />
       {description ? <p className="mt-5 text-sm text-slate-400 sm:text-base">{description}</p> : null}
     </div>
   );

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Download, Linkedin, Mail, MapPin, Send, Sparkles } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Download, Linkedin, Mail, MapPin, Send, Sparkles } from "lucide-react";
 import { marqueeItems, profile } from "./data";
 import { Reveal } from "./motion";
+import { SignalScope } from "./signal-scope";
 
 /**
  * Types and erases the rotating specialisation line.
@@ -75,8 +76,14 @@ function Portrait() {
   return (
     <div className="relative mx-auto flex h-64 w-64 items-center justify-center sm:h-80 sm:w-80 lg:h-[22rem] lg:w-[22rem]">
       <div className="absolute inset-6 rounded-full bg-gradient-to-br from-sky-500/30 via-indigo-500/20 to-fuchsia-500/25 blur-3xl" />
+      <div aria-hidden className="orbit-slow absolute -inset-3 rounded-full border border-dashed border-sky-400/20">
+        <span className="orbit-satellite text-sky-300" />
+      </div>
+      <div aria-hidden className="orbit-reverse absolute -inset-7 rounded-full border border-sky-400/10">
+        <span className="orbit-satellite text-indigo-300" />
+      </div>
       <div className="conic-ring absolute inset-0 rounded-full opacity-80" />
-      <div className="absolute inset-[3px] overflow-hidden rounded-full bg-[#070b17]">
+      <div className="scanline absolute inset-[3px] overflow-hidden rounded-full bg-[#070b17]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(56,189,248,0.28),transparent_60%)]" />
         <div className="absolute inset-0 grid place-items-center">
           <span className="font-display bg-gradient-to-br from-sky-200 via-sky-400 to-indigo-400 bg-clip-text text-6xl font-bold text-transparent sm:text-7xl">
@@ -100,13 +107,14 @@ function Portrait() {
         </span>
         <span className="text-left">
           <span className="block text-[0.65rem] tracking-[0.18em] text-slate-400 uppercase">Currently</span>
-          <span className="block text-xs font-semibold text-slate-100">{profile.company}</span>
+          <span className="block text-xs font-semibold text-slate-100">{profile.companyShort}</span>
+          <span className="block text-[0.65rem] text-sky-300/80">{profile.client}</span>
         </span>
       </div>
 
       <div className="surface-strong float-slower absolute top-4 -left-2 rounded-2xl px-3 py-2 sm:-left-6">
         <span className="font-mono-ui text-[0.7rem] text-slate-300">
-          <span className="text-sky-300">4+</span> yrs · BLE / Wi-Fi
+          <span className="text-sky-300">{profile.years}</span> yrs · Embedded / OT
         </span>
       </div>
     </div>
@@ -191,7 +199,7 @@ export function Hero() {
                 className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 ring-1 ring-slate-800 transition-all duration-300 hover:text-white hover:ring-sky-400/50"
               >
                 <Download className="h-4 w-4" />
-                Résumé
+                Resume
               </a>
             </div>
           </Reveal>
@@ -213,13 +221,28 @@ export function Hero() {
           </Reveal>
         </div>
 
-        <Reveal delay={200}>
+        <Reveal delay={200} from="right">
           <Portrait />
         </Reveal>
       </div>
 
       <div className="mt-16">
         <TechMarquee />
+      </div>
+
+      <div className="mx-auto mt-9 max-w-6xl px-5 sm:px-8">
+        <Reveal from="scale" delay={60}>
+          <SignalScope />
+        </Reveal>
+      </div>
+
+      <div className="mt-9 flex justify-center">
+        <a href="#about" className="group inline-flex flex-col items-center gap-1.5">
+          <span className="font-mono-ui text-[0.6rem] tracking-[0.28em] text-slate-500 uppercase transition-colors duration-300 group-hover:text-sky-300">
+            Scroll
+          </span>
+          <ChevronDown className="bounce-soft h-4 w-4 text-sky-400/70" />
+        </a>
       </div>
     </section>
   );
