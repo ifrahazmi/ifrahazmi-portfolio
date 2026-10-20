@@ -11,6 +11,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   poweredByHeader: false,
+  // The dev-mode badge would otherwise sit on top of screenshots and the hero.
+  devIndicators: false,
 };
 
 export default nextConfig;

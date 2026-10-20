@@ -1,214 +1,230 @@
-# 🚀 Ifrahuddin Azmi – Portfolio Website
+# Ifrahuddin Azmi — Portfolio
 
-Welcome to my personal portfolio — a modern, production-ready web application built with the latest technologies to showcase my work and skills.
+A dark, animated one-page portfolio for an automation test engineer — plus two contact
+channels that actually deliver mail: a form on the site itself, and a drop-in widget other
+people can install on their own sites.
 
----
+![Portfolio home page](docs/screenshots/portfolio-home.png)
 
-## 🛠️ Tech Stack
-
-### ⚙ Core
-- **Next.js 15** – App Router enabled
-- **TypeScript 5**
-- **Tailwind CSS 4**
-
-### 🧩 UI & Styling
-- **shadcn/ui** – Radix-based component library
-- **Framer Motion** – Animation support
-- **Lucide React** – Icon set
-- **Next Themes** – Dark/light mode switching
-
-### 📋 Forms & Validation
-- **React Hook Form** – Performant forms
-- **Zod** – Schema-based validation
-
-### 🔄 State & Data Management
-- **Zustand** – Lightweight state management
-- **TanStack Query** – Data fetching & caching
-- **Axios** – API calls
-
-### 🔐 Backend & Auth
-- **Prisma** – Type-safe ORM
-- **NextAuth.js** – Authentication system
-
-### 📊 UI Enhancements
-- **Recharts** – Data visualization
-- **TanStack Table** – Tables with sorting/filtering
-- **DND Kit** – Drag-and-drop features
-- **Sharp** – Image optimization
-
-### 🌍 Utilities
-- **Next Intl** – Internationalization
-- **date-fns** – Date manipulation
-- **ReactUse** – React utility hooks
+<p>
+  <img alt="Next.js 15" src="https://img.shields.io/badge/Next.js-15.5-000?logo=next.js&logoColor=white">
+  <img alt="React 19" src="https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white">
+  <img alt="TypeScript 5" src="https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white">
+  <img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss&logoColor=white">
+  <img alt="Licence: MIT" src="https://img.shields.io/badge/licence-MIT-22c55e">
+</p>
 
 ---
 
-## 🚀 Quick Start
+## What's in here
 
-```bash
-# Install dependencies
-npm install
+**1. The portfolio** (`/`) — hero with live "signal monitor" animation, experience
+timeline, selected projects, skills, and a contact section. Everything renders from
+[`src/components/portfolio/data.ts`](src/components/portfolio/data.ts), so copy changes
+don't require touching layout code.
 
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
-```
-
-Open [http://localhost:3000](http://localhost:3000) to see your application running.
+**2. An embeddable developer contact widget** (`/dev-contact`) — the
+"Designed & developed by Ifrahuddin Azmi" credit on a client's site becomes a lead capture
+form. Visitors pick a service category, get dependent service options, then choose how to
+be reached: email, or a `+91` mobile callback. It ships as one standalone script that other
+sites can load with a `<script>` tag.
 
 ---
 
-## ✉️ Contact form email (SMTP)
+## Tech stack
 
-The contact form posts to `POST /api/contact`, which delivers the message over authenticated SMTP and replies straight to the visitor's address (`Reply-To`). Every notification is rendered from a responsive HTML template — sender card, quoted message, and a “Where it came from” block with the source path, referrer, device/browser, arrival time (IST) and IP — plus a plain-text fallback for clients that block HTML.
+| Layer      | Choice |
+| ---------- | ------ |
+| Framework  | Next.js 15.5 (App Router) on React 19 |
+| Language   | TypeScript 5, strict |
+| Styling    | Tailwind CSS 4, custom aurora/glass design tokens in `globals.css` |
+| Motion     | Framer Motion 12 |
+| Icons      | lucide-react |
+| Email      | Nodemailer 7 over authenticated SMTP (Zoho) |
+| Hosting    | Vercel — `bom1` (Mumbai) region |
 
-Create `.env.local` (already gitignored) with:
+## Quick start
 
-```bash
-SMTP_HOST=smtp.zoho.in
-SMTP_PORT=465
-SMTP_SECURE=true
-SMTP_USER=you@example.com
-SMTP_PASS=app-specific-password
-SMTP_FROM="Your Name <you@example.com>"
-SMTP_TO=you@example.com
-```
-
-The route validates input, caps message length, rate-limits to 4 submissions per IP per 10 minutes, silently drops honeypot hits, and returns generic errors while logging only the SMTP failure code. On Vercel the limiter lives inside one warm function instance — the honeypot and validation are what actually keep the inbox clean.
-
-| Variable | Value used here |
-| --- | --- |
-| `SMTP_HOST` | `smtp.zoho.in` |
-| `SMTP_PORT` | `465` |
-| `SMTP_SECURE` | `true` |
-| `SMTP_USER` | `info@hikmahsphere.site` |
-| `SMTP_PASS` | Zoho app password |
-| `SMTP_FROM` | `HikmahSphere <info@hikmahsphere.site>` |
-| `SMTP_TO` | `info@hikmahsphere.site` |
-
-Nothing is baked into the build — the same seven names are read at request time from the host environment.
-
----
-
-## ▲ Deploying to Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgitlab.com%2Fifrahazmi%2Fportfolio&env=SMTP_HOST,SMTP_PORT,SMTP_SECURE,SMTP_USER,SMTP_PASS,SMTP_FROM,SMTP_TO&envDescription=SMTP%20credentials%20used%20by%20the%20contact%20form&envLink=https%3A%2F%2Fgitlab.com%2Fifrahazmi%2Fportfolio%23%EF%B8%8F-contact-form-email-smtp)
-
-**One command, everything configured:**
+Requires **Node 20+**.
 
 ```bash
-npm run deploy
+npm ci                       # install exactly what the lockfile pins
+cp .env.example .env.local   # then fill in the SMTP_* values
+npm run dev                  # http://localhost:3000
 ```
 
-It reads `.env.local`, verifies the Vercel CLI is logged in (`npx vercel login` once), links this folder to the `portfolio` project, pushes all seven `SMTP_*` variables to production, preview and development, then builds and deploys to production and prints the live URL. Secrets travel over stdin, never as command-line arguments, and are never echoed.
+The site renders without SMTP configured; only the contact endpoints need it. Without those
+variables they return `502` with a generic message and log the reason server-side.
 
-Useful variants:
+## Routes
 
-```bash
-npm run env:push                 # sync variables only, no deploy
-npm run deploy:preview           # deploy a preview URL, leave production untouched
-npm run deploy -- --skip-env     # redeploy with the variables already on Vercel
-npm run deploy -- --project other-name --env-file .env.production
-```
+| Route                  | What it is |
+| ---------------------- | ---------- |
+| `/`                    | The portfolio |
+| `/dev-contact`         | Preview / demo page for the widget, with embed snippets |
+| `/dev-contact?embed=1` | Same widget, chromeless — meant for an `<iframe>` |
+| `POST /api/contact`    | Portfolio contact form (same-origin) |
+| `POST /api/dev-contact`| Public widget endpoint (cross-origin, CORS-controlled) |
+| `GET /api/health`      | `{ "message": "Good!" }` |
 
-### What makes this build Vercel-native
+## Environment variables
 
-- **`vercel.json`** pins the framework, `npm ci`, `npm run build`, and the `bom1` (Mumbai) region — next to `smtp.zoho.in` and the audience.
-- **The build is just `next build`.** `next.config.ts` no longer hides type or lint errors, so a red build is a real failure locally and on Vercel.
-- **Next.js is pinned to 15.5.28 (React 19.1.10).** Vercel refuses to deploy Next.js versions with open security advisories, so 15.3.5 was blocked at build time; 15.5.28 is the patched 15.x line and keeps this app on the same App Router API.
-- **`POST /api/contact` is a Node.js function** (`runtime = "nodejs"`, `maxDuration = 30`). Nodemailer needs real TLS sockets, which the Edge runtime cannot provide; Vercel permits outbound 465/587 and blocks only port 25.
-- **No pooled socket in serverless.** The mailer disables connection pooling when it detects Vercel/Lambda, so a frozen instance never hands out a dead TLS connection. Locally it still pools.
-- **`npm run dev` is plain `next dev`** — the same code path Vercel builds. The Socket.IO echo server in `server.ts` is local-only (`npm run dev:socket`, `npm run start:socket`); Vercel does not run custom `listen()` servers.
-- **SQLite/Prisma is not part of the site** — nothing in the deployed pages imports it, and a local `.db` file would not persist on Vercel.
+Set these locally in `.env.local` (gitignored) and in **Vercel → Project → Settings →
+Environment Variables** for production.
 
-The project is also connected to the GitLab repo, so pushing to `main` deploys production and any other branch deploys a preview — the CLI command is only needed for the first push or for env changes.
+| Variable | Required | Example | Purpose |
+| -------- | -------- | ------- | ------- |
+| `SMTP_HOST` | yes | `smtp.zoho.in` | Mail server for your data centre |
+| `SMTP_PORT` | no | `465` | Defaults to `465`; `587` also works (STARTTLS) |
+| `SMTP_SECURE` | no | `true` | `true` for 465, `false` for 587 |
+| `SMTP_USER` | yes | `info@example.com` | SMTP login |
+| `SMTP_PASS` | yes | *(app password)* | Use an app password, never the account password |
+| `SMTP_FROM` | no | `HikmahSphere <info@example.com>` | Defaults to `SMTP_USER` |
+| `SMTP_TO` | yes | `info@example.com` | Inbox that receives notifications |
+| `CONTACT_ALLOWED_ORIGINS` | no | `https://client.com` | Comma-separated allowlist for `/api/dev-contact`; `*` (default) accepts any site |
 
-### First-deploy checklist
+## The site contact form
 
-0. Attach your domain under **Project → Settings → Domains**. HTTPS only works once the domain is added to this project (a DNS record alone yields a certificate error).
-1. Open the production URL and submit the contact form once.
-2. Confirm the notification arrives in `info@hikmahsphere.site` as the designed HTML card, and that **Reply** addresses the visitor.
-3. Post to `/api/contact` with an empty body — expect `422`; with the honeypot filled — expect `200` and no mail.
-4. If delivery fails, check **Vercel → Deployments → Functions → /api/contact** logs: `EAUTH` means the Zoho password/username pair is wrong, a timeout means the host or port is wrong for your Zoho data centre.
+Posts to `POST /api/contact`, which sends a responsive HTML notification (sender card,
+quoted message, and a "where it came from" block with page, referrer, device, IST arrival
+time and IP) plus a plain-text fallback. The visitor's address becomes `Reply-To`, so
+**Reply** goes straight back to them.
 
+- Validated server-side: name, email, message length; unknown fields ignored.
+- Honeypot (`company`) — a filled value returns `200` and sends nothing.
+- Rate limited to **4 submissions per IP per 10 minutes**.
+- Errors are generic to the client; the SMTP failure code is logged, not echoed.
 
-## 🧩 Embeddable developer contact form
-
-A separate, drop-in contact form for the sites you build for other people — the
-"Designed & developed by Ifrahuddin Azmi" credit becomes a working lead capture
-channel.
+## The embeddable widget
 
 ```html
+<!-- once, anywhere on the page -->
 <script src="https://your-domain.com/embed/dev-contact.js" defer></script>
+
+<!-- any element opens it -->
 <a href="#" data-dev-contact>Designed &amp; developed by Ifrahuddin Azmi</a>
+
+<!-- or from your own code -->
+<button onclick="DevContact.open()">Start a project</button>
 ```
 
-Clicking the credit opens an animated Shadow-DOM modal (host CSS cannot break
-it). Visitors pick a service — website, mobile app, microservices, design,
-marketing, deployment and more — then choose email or a `+91` callback. Every
-submission arrives as a designed brief with budget, timeline and a one-click
-reply. The widget needs no framework; the API is cross-origin and lockable to
-specific client domains.
+The modal renders inside a Shadow DOM, so the host site's CSS cannot break it. No
+framework, no build step, one file.
 
-- **Preview:** `/dev-contact` · **Iframe embed:** `/dev-contact?embed=1`
-- **Widget:** [`public/embed/dev-contact.js`](public/embed/dev-contact.js)
-- **API:** [`src/app/api/dev-contact/route.ts`](src/app/api/dev-contact/route.ts)
-- **Full guide:** [`docs/developer-contact-form.md`](docs/developer-contact-form.md) — embedding, field rules, CORS, theming and Vercel steps.
+**Services offered** — eight categories, each with its own dependent options:
 
-Disabled by default (`CONTACT_ALLOWED_ORIGINS=*` is permissive); set an explicit
-allowlist before handing the script to clients you don't control.
+| Category | Services |
+| -------- | -------- |
+| General inquiry | Just a question · Full-time/hiring · Collaboration · Something else |
+| Website & web app | Business website · Web app/dashboard · Online store · Redesign |
+| Mobile app | Android · iOS · Cross-platform |
+| Software & APIs | Microservices/backend · SaaS build · Automation & internal tools · AI integration |
+| Design & branding | UI/UX · Logo & identity · Design system |
+| Growth & marketing | SEO · Digital marketing/ads · Content & copywriting |
+| Cloud & deployment | App deployment/DevOps · Domain, DNS & business email · Performance & security audit |
+| Something else | Custom project |
 
-## 📁 Project Structure
+**Contact method is a choice, and the chosen field is mandatory.** Email asks for an
+address; Mobile shows a fixed `+91` prefix, accepts digits only, and requires a real Indian
+mobile (ten digits, starting 6–9). The API normalises `+919876543210`, `09876543210` and
+`98765 43210` to the same number. Phone-only briefs have no `Reply-To`; the notification's
+call to action becomes a `tel:` link.
+
+![Service picker](docs/screenshots/widget-service-picker.png)
+![Mobile callback option](docs/screenshots/widget-mobile-callback.png)
+![Callback confirmation](docs/screenshots/widget-callback-success.png)
+
+`POST /api/dev-contact` accepts `name`, `category`, `service`, `contactMethod`, exactly one
+of `email`/`phone`, `requirement`, and optionally `company`, `budget`, `timeline`, `link`,
+`source`. Unknown category/service pairs are rejected with `422`, so the API can't receive a
+service the form never offered. It is rate limited to **5 submissions per IP per 10
+minutes** and honours `CONTACT_ALLOWED_ORIGINS`.
+
+Full guide — theming, `data-*` options, CORS rules, Vercel steps, troubleshooting:
+**[docs/developer-contact-form.md](docs/developer-contact-form.md)**.
+
+## Project structure
 
 ```
 src/
-├── app/                 # Next.js App Router pages
-├── components/          # Reusable React components
-│   └── ui/             # shadcn/ui components
-├── hooks/              # Custom React hooks
-└── lib/                # Utility functions and configurations
+├── app/
+│   ├── page.tsx              # the portfolio
+│   ├── dev-contact/          # widget preview + iframe mode
+│   └── api/
+│       ├── contact/          # portfolio form endpoint
+│       ├── dev-contact/      # widget endpoint (CORS + service validation)
+│       └── health/
+├── components/
+│   ├── portfolio/            # hero, about, experience, projects, skills, contact, …
+│   └── ui/                   # the few shadcn/ui primitives in use
+├── hooks/
+└── lib/
+    ├── email-template.ts     # HTML + text for the portfolio form
+    ├── developer-inquiry.ts  # HTML + text for widget briefs
+    ├── mailer.ts             # Nodemailer transport, config, error types
+    └── service-catalog.ts    # categories, budgets, timelines, phone validation
+public/embed/dev-contact.js   # standalone widget (mirrors service-catalog ids)
+docs/developer-contact-form.md
 ```
 
-## 🎨 Available Features & Components
+## Scripts
 
-This scaffold includes a comprehensive set of modern web development tools:
+| Command | Does |
+| ------- | ---- |
+| `npm run dev` | Next dev server — the same code path Vercel builds |
+| `npm run build` / `npm start` | Production build and server |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint (Next config) |
+| `npm run deploy` | Push `SMTP_*` to Vercel, then deploy to production |
+| `npm run deploy:preview` | Same, but a preview deployment |
+| `npm run env:push` | Sync environment variables only |
+| `npm run dev:socket` / `start:socket` | Optional Socket.IO echo server (`server.ts`, local only) |
 
-### 🧩 UI Components (shadcn/ui)
-- **Layout**: Card, Separator, Aspect Ratio, Resizable Panels
-- **Forms**: Input, Textarea, Select, Checkbox, Radio Group, Switch
-- **Feedback**: Alert, Toast (Sonner), Progress, Skeleton
-- **Navigation**: Breadcrumb, Menubar, Navigation Menu, Pagination
-- **Overlay**: Dialog, Sheet, Popover, Tooltip, Hover Card
-- **Data Display**: Badge, Avatar, Calendar
+## Deploying to Vercel
 
-### 📊 Advanced Data Features
-- **Tables**: Powerful data tables with sorting, filtering, pagination (TanStack Table)
-- **Charts**: Beautiful visualizations with Recharts
-- **Forms**: Type-safe forms with React Hook Form + Zod validation
+1. **Import the repo** at [vercel.com/new](https://vercel.com/new) — the framework is
+   detected from [vercel.json](vercel.json), which pins `npm ci` and the `bom1` region.
+2. **Add the `SMTP_*` variables** for Production (and Preview if you want form previews to
+   send). `CONTACT_ALLOWED_ORIGINS` is optional.
+3. **Deploy**, then submit both forms once and confirm the notifications arrive.
+4. Attach a custom domain under **Settings → Domains**; HTTPS only works once the domain is
+   on the project.
 
-### 🎨 Interactive Features
-- **Animations**: Smooth micro-interactions with Framer Motion
-- **Drag & Drop**: Modern drag-and-drop functionality with DND Kit
-- **Theme Switching**: Built-in dark/light mode support
+Or from the CLI, with `.env.local` filled in:
 
-### 🔐 Backend Integration
-- **Authentication**: Ready-to-use auth flows with NextAuth.js
-- **Database**: Type-safe database operations with Prisma
-- **API Client**: HTTP requests with Axios + TanStack Query
-- **State Management**: Simple and scalable with Zustand
+```bash
+npx vercel login   # once
+npm run deploy     # env vars + production deploy
+```
 
-### 🌍 Production Features
-- **Internationalization**: Multi-language support with Next Intl
-- **Image Optimization**: Automatic image processing with Sharp
-- **Type Safety**: End-to-end TypeScript with Zod validation
-- **Essential Hooks**: 100+ useful React hooks with ReactUse for common patterns
+Nice properties of this setup:
 
----
+- `/api/contact` and `/api/dev-contact` are Node.js functions (`runtime = "nodejs"`) —
+  Nodemailer needs real TLS sockets, which the Edge runtime doesn't provide. Vercel allows
+  outbound 465/587 and blocks 25.
+- In serverless the mailer disables connection pooling, so a frozen instance never hands out
+  a dead socket; locally it still pools.
+- `next build` is the whole build. No custom webpack, no ignored type or lint errors — a red
+  build locally is a red build on Vercel.
+- Custom `listen()` servers aren't supported on Vercel, which is why `server.ts` is
+  local-only.
 
-Crafted with ❤️ by Ifrahuddin Azmi
+## Notes and limits
 
+- **Rate limiters are in-memory.** They live inside a warm function instance, so they are a
+  speed bump, not a global quota. Validation and the honeypot are what keep the inbox clean.
+- **The widget's catalog is mirrored** in `public/embed/dev-contact.js` because it ships
+  without a build step. Changing an id in `service-catalog.ts` means changing it in the
+  widget too; a parity check against both files is a good habit before releasing.
+- **Mail can't be read back** — proof of delivery stops at SMTP acceptance. Check the
+  receiving inbox, or the function logs for `EAUTH` / timeouts.
+
+## Licence
+
+[MIT](LICENSE) — the code is yours to reuse. The personal content (résumé, photographs,
+project copy) is not; please replace it if you fork this as your own site.
+
+## Contact
+
+**Ifrahuddin Azmi** · Bengaluru, India
+[ifrahazmi@live.com](mailto:ifrahazmi@live.com) · [LinkedIn](https://www.linkedin.com/in/ifrahuddin-azmi-8869787a/) · [GitHub](https://github.com/ifrahazmi)
