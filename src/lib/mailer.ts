@@ -112,6 +112,17 @@ export async function sendDeveloperInquiry(payload: DeveloperInquiry) {
     subject,
     text,
     html,
+    // The brief itself stays readable in the mail body; the upload rides along
+    // as a real attachment so it can be opened or forwarded from the inbox.
+    attachments: payload.attachment
+      ? [
+          {
+            filename: payload.attachment.name,
+            content: Buffer.from(payload.attachment.data, "base64"),
+            contentType: payload.attachment.type,
+          },
+        ]
+      : undefined,
     headers: {
       "X-Entity-Ref-ID": `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
       "X-Auto-Response-Suppress": "All",

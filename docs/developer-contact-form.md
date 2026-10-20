@@ -105,7 +105,7 @@ Auto-resize the iframe as the success panel appears:
 | ---------------- | ------------------------------ | ------------------------------------------- |
 | `data-endpoint`  | `<script-origin>/api/dev-contact` | Where to POST. Omit when self-hosting.   |
 | `data-name`      | `Ifrahuddin Azmi`              | Name in the header and email                |
-| `data-role`      | `Automation Test Engineer`     | Subtitle under the name                     |
+| `data-role`      | `Web Design + Developer | AI/ML Engineer | Automation` | Subtitle under the name (wraps to two lines) |
 | `data-email`     | `info@hikmahsphere.site`       | Address shown in the success panel          |
 | `data-source`    | current page URL               | Fallback source label for submissions       |
 | `data-accent`    | `#38bdf8`                      | Accent used by the gradient and focus ring  |
@@ -141,6 +141,25 @@ explicitly.
 }
 ```
 
+`budget` and `timeline` are only collected once a project category is picked;
+the widget keeps them hidden for `general`. The API itself still accepts both
+for any category, so an embed can collect them however it likes.
+
+One optional file can ride along as base64. The `data` value is the payload
+with the `data:` URL prefix stripped, and the extension decides the type —
+`size` is informational and re-derived server-side:
+
+```json
+{
+  "attachment": {
+    "name": "wireframes.pdf",
+    "type": "application/pdf",
+    "size": 184320,
+    "data": "JVBERi0xLjQK…"
+  }
+}
+```
+
 A callback request replaces `email` with a mobile number:
 
 ```json
@@ -167,6 +186,7 @@ A callback request replaces `email` with a mobile number:
 | `budget`        | no        | `Under ₹25k`, `₹25k – ₹1L`, `₹1L – ₹5L`, `₹5L+`, `Not sure yet` |
 | `timeline`      | no        | `ASAP`, `2–4 weeks`, `1–3 months`, `Flexible`             |
 | `link`          | no        | absolute `http(s)` URL                                   |
+| `attachment`    | no        | `{ name, type, size, data }`; PDF, PNG, JPG, WEBP, GIF, DOC(X), XLS(X), TXT or ZIP, **max 2.5 MB** decoded |
 | `source`        | no        | page the form was shown on (URL or bare hostname)        |
 | `pageUrl`       | no        | fallback for `source`                                    |
 | `botcheck`      | no        | honeypot; any value ⇒ `200` and no mail is sent          |
@@ -174,6 +194,17 @@ A callback request replaces `email` with a mobile number:
 Unknown budget/timeline values are dropped rather than rejected, so an older
 widget can keep posting to a newer API. Unknown **categories or services are
 rejected** with `422` — they decide what the notification email says.
+
+The file picker stays collapsed behind a single **Add attachment** row until the
+visitor clicks it, so the form stays short for the majority who have nothing to
+attach; closing the picker without choosing a file returns to that row.
+
+Attachments are checked before anything is sent: the filename is stripped of
+path segments and control characters, the extension must be in the allowlist,
+the base64 body must decode cleanly, and the recomputed byte length must clear
+2.5 MB. That keeps the encoded request under the 4.5 MB serverless body limit.
+The file is delivered as a real mail attachment, so it can be opened and
+forwarded straight from the inbox.
 
 Phone numbers are normalised: `9876543210`, `+919876543210`, `09876543210` and
 `98765 43210` all become `9876543210`. Anything shorter, longer, or starting

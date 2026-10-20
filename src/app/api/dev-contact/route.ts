@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { sendDeveloperInquiry } from "@/lib/mailer";
+import type { InquiryAttachment } from "@/lib/developer-inquiry";
 import {
   BUDGET_OPTIONS,
   TIMELINE_OPTIONS,
@@ -22,6 +23,29 @@ export const maxDuration = 30;
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_PER_WINDOW = 5;
 const hits = new Map<string, number[]>();
+
+/**
+ * Attachments arrive base64-encoded in the JSON body, so this ceiling keeps the
+ * encoded request (~3.4 MB) inside the 4.5 MB serverless body limit.
+ */
+const MAX_ATTACHMENT_BYTES = 2_500_000;
+const MAX_ATTACHMENT_NAME = 160;
+
+/** Extensions we accept, mapped to the MIME type we send to the mail server. */
+const ATTACHMENT_TYPES: Record<string, string> = {
+  pdf: "application/pdf",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+  doc: "application/msword",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xls: "application/vnd.ms-excel",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  txt: "text/plain",
+  zip: "application/zip",
+};
 
 /** Comma-separated allowlist. `*` (the default) permits any client site. */
 const ALLOWED_ORIGINS = (process.env.CONTACT_ALLOWED_ORIGINS ?? "*")
@@ -114,6 +138,45 @@ function pickOption(raw: unknown, options: readonly string[]) {
   return options.includes(value) ? value : undefined;
 }
 
+/**
+ * Validates the optional upload without trusting anything the client claims:
+ * the extension decides the type, and the byte length is recomputed from the
+ * base64 body rather than read from `size`.
+ */
+function parseAttachment(raw: unknown): { attachment?: InquiryAttachment; error?: string } {
+  if (raw === undefined || raw === null || raw === "") return {};
+  if (typeof raw !== "object") return { error: "The attachment could not be read." };
+
+  const entry = raw as Record<string, unknown>;
+  const name =
+    typeof entry.name === "string"
+      ? entry.name
+          .replace(/^.*[\\/]/, "")
+          .replace(/[\u0000-\u001f<>:"|?*]/g, "")
+          .trim()
+          .slice(0, MAX_ATTACHMENT_NAME)
+      : "";
+
+  if (!name) return { error: "The attachment is missing a file name." };
+
+  const ext = name.toLowerCase().split(".").pop() ?? "";
+  const expectedType = ATTACHMENT_TYPES[ext];
+  if (!expectedType) return { error: "Attach a PDF, image, Word/Excel, TXT or ZIP file." };
+
+  const data = typeof entry.data === "string" ? entry.data : "";
+  if (!data || !/^[A-Za-z0-9+/]+={0,2}$/.test(data) || data.length % 4 !== 0) {
+    return { error: "The attachment could not be read." };
+  }
+
+  const padding = data.endsWith("==") ? 2 : data.endsWith("=") ? 1 : 0;
+  const size = (data.length / 4) * 3 - padding;
+  if (size > MAX_ATTACHMENT_BYTES) {
+    return { error: "That file is over 2.5 MB. Send a link instead." };
+  }
+
+  return { attachment: { name, type: expectedType, size, data } };
+}
+
 type Errors = Record<string, string>;
 
 export async function POST(request: Request) {
@@ -180,6 +243,9 @@ export async function POST(request: Request) {
   if (requirement.length > 5000) errors.requirement = "Please keep it under 5000 characters.";
   if (body.link && !link) errors.link = "Use a full link starting with https://";
 
+  const parsedAttachment = parseAttachment(body.attachment);
+  if (parsedAttachment.error) errors.attachment = parsedAttachment.error;
+
   if (Object.keys(errors).length || !catalogEntry) {
     return reply(
       { ok: false, error: "Please check the highlighted fields.", errors },
@@ -205,6 +271,7 @@ export async function POST(request: Request) {
       budget: pickOption(body.budget, BUDGET_OPTIONS),
       timeline: pickOption(body.timeline, TIMELINE_OPTIONS),
       link,
+      attachment: parsedAttachment.attachment,
       source,
       referrer:
         clip(body.referrer, 500) || clip(request.headers.get("referer"), 500) || undefined,

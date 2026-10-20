@@ -9,6 +9,17 @@
 
 import { formatPhone } from "./service-catalog";
 
+/** One optional file the visitor attached, already validated by the route. */
+export type InquiryAttachment = {
+  name: string;
+  /** MIME type taken from the upload, or derived from the extension. */
+  type: string;
+  /** Decoded size in bytes. */
+  size: number;
+  /** Base64 body, without the `data:` URL prefix. */
+  data: string;
+};
+
 export type DeveloperInquiry = {
   name: string;
   /** Present when the visitor chose email, or when they added it anyway. */
@@ -23,6 +34,7 @@ export type DeveloperInquiry = {
   budget?: string;
   timeline?: string;
   link?: string;
+  attachment?: InquiryAttachment;
   /** Page the widget was embedded on (for credit links, the client's site). */
   source?: string;
   referrer?: string;
@@ -90,6 +102,11 @@ const deviceSummary = (userAgent?: string) => {
   return `${browser} on ${platform}${mobile}`;
 };
 
+const formatBytes = (bytes: number) => {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+};
+
 /** Human-friendly host for a URL, falling back to the raw string. */
 const hostOf = (raw?: string) => {
   if (!raw) return "";
@@ -138,6 +155,14 @@ export function buildDeveloperInquiryEmail(payload: DeveloperInquiry) {
       ? metaRow(
           "Reference",
           `<a href="${escapeAttr(payload.link)}" style="color:${PALETTE.sky};text-decoration:none;">${escapeHtml(payload.link)}</a>`,
+        )
+      : "",
+    payload.attachment
+      ? metaRow(
+          "Attachment",
+          `${escapeHtml(payload.attachment.name)} <span style="color:${PALETTE.faint};">· ${escapeHtml(
+            formatBytes(payload.attachment.size),
+          )}</span>`,
         )
       : "",
     metaRow(
@@ -253,6 +278,9 @@ export function buildDeveloperInquiryEmail(payload: DeveloperInquiry) {
     payload.budget ? `Budget: ${payload.budget}` : null,
     payload.timeline ? `Timeline: ${payload.timeline}` : null,
     payload.link ? `Reference: ${payload.link}` : null,
+    payload.attachment
+      ? `Attachment: ${payload.attachment.name} (${formatBytes(payload.attachment.size)})`
+      : null,
     "",
     "The brief:",
     requirementText,

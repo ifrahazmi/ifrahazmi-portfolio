@@ -134,12 +134,19 @@ call to action becomes a `tel:` link.
 ![Mobile callback option](docs/screenshots/widget-mobile-callback.png)
 ![Callback confirmation](docs/screenshots/widget-callback-success.png)
 ![Widget on a phone](docs/screenshots/widget-mobile-layout.png)
+![Budget and timeline unlock once a service is picked](docs/screenshots/widget-budget-unlocked.png)
+![Optional attachment slot on the widget](docs/screenshots/widget-attachment-and-role.png)
+
+Budget and timeline stay locked until a project category is chosen, so the form asks for
+money and dates only once the visitor has said what they need; a general enquiry never sees
+them. An optional reference file (PDF, image, Word/Excel, TXT or ZIP, up to 2.5 MB) rides
+along with the brief as a real mail attachment.
 
 `POST /api/dev-contact` accepts `name`, `category`, `service`, `contactMethod`, exactly one
 of `email`/`phone`, `requirement`, and optionally `company`, `budget`, `timeline`, `link`,
-`source`. Unknown category/service pairs are rejected with `422`, so the API can't receive a
-service the form never offered. It is rate limited to **5 submissions per IP per 10
-minutes** and honours `CONTACT_ALLOWED_ORIGINS`.
+`attachment`, `source`. Unknown category/service pairs are rejected with `422`, so the API
+can't receive a service the form never offered. It is rate limited to **5 submissions per IP
+per 10 minutes** and honours `CONTACT_ALLOWED_ORIGINS`.
 
 Full guide — theming, `data-*` options, CORS rules, Vercel steps, troubleshooting:
 **[docs/developer-contact-form.md](docs/developer-contact-form.md)**.

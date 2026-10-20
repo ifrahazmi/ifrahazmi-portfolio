@@ -22,7 +22,7 @@ const iframeSnippet = `<!-- zero-JS embed, works in Webflow, WordPress, Notion, 
 <iframe
   src="https://your-domain.com/dev-contact?embed=1"
   title="Contact Ifrahuddin Azmi"
-  style="width:100%;max-width:600px;border:0;height:720px"
+  style="width:100%;max-width:600px;border:0;height:900px"
   loading="lazy"></iframe>`;
 
 const apiSnippet = `curl -X POST https://your-domain.com/api/dev-contact \\
@@ -48,9 +48,14 @@ const fields = [
   { name: "service", required: true, note: "id from that category" },
   { name: "requirement", required: true, note: "10–5000 characters" },
   { name: "company", required: false, note: "max 120" },
-  { name: "budget", required: false, note: "one of five options" },
-  { name: "timeline", required: false, note: "one of four options" },
+  { name: "budget", required: false, note: "one of five options · asked after a service is picked" },
+  { name: "timeline", required: false, note: "one of four options · asked after a service is picked" },
   { name: "link", required: false, note: "http(s) URL" },
+  {
+    name: "attachment",
+    required: false,
+    note: "PDF, image, Word/Excel, TXT or ZIP · max 2.5 MB",
+  },
   { name: "source", required: false, note: "page the form was shown on" },
 ];
 
@@ -109,8 +114,9 @@ export default async function DevContactPage({
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
           Shadow-DOM isolated, so the host page&apos;s CSS can&apos;t touch it. Visitors pick a
-          service, choose email or a +91 callback, and every submission lands in my inbox as a
-          designed brief with a one-click reply.
+          service — which unlocks the budget and timeline questions — attach a reference file if
+          they have one, and every submission lands in my inbox as a designed brief with a
+          one-click reply.
         </p>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start">

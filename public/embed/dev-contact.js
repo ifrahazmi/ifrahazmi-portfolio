@@ -1,6 +1,6 @@
 /*!
  * Developer contact widget — drop-in, dependency-free, Shadow-DOM isolated.
- * v1.0.0
+ * v1.1.0
  *
  * Usage:
  *   <script src="https://your-domain.com/embed/dev-contact.js"
@@ -25,7 +25,9 @@
   var config = {
     endpoint: (script && script.getAttribute("data-endpoint")) || origin + "/api/dev-contact",
     name: (script && script.getAttribute("data-name")) || "Ifrahuddin Azmi",
-    role: (script && script.getAttribute("data-role")) || "Automation Test Engineer",
+    role:
+      (script && script.getAttribute("data-role")) ||
+      "Web Design + Developer | AI/ML Engineer | Automation",
     email: (script && script.getAttribute("data-email")) || "info@hikmahsphere.site",
     source: (script && script.getAttribute("data-source")) || "",
     mode: (script && script.getAttribute("data-mode")) || "modal",
@@ -70,7 +72,7 @@
     ".dc-mark::after{content:'';position:absolute;inset:-4px;border-radius:16px;border:1px solid rgba(56,189,248,.28);animation:dcRing 3.4s ease-out infinite}",
     ".dc-ident{min-width:0}",
     ".dc-name{font-size:13.5px;font-weight:700;letter-spacing:.01em;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
-    ".dc-role{font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    ".dc-role{font-size:10px;font-weight:600;letter-spacing:.11em;line-height:1.55;text-transform:uppercase;color:var(--faint);margin-top:3px}",
     ".dc-close{position:absolute;top:16px;right:16px;z-index:3;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;border:1px solid transparent;background:transparent;color:#7f8ba3;cursor:pointer;transition:background .2s,color .2s,border-color .2s}",
     ".dc-close:hover{background:rgba(148,163,184,.09);border-color:rgba(148,163,184,.14);color:#e8eef9}",
     ".dc-close svg{width:14px;height:14px}",
@@ -131,6 +133,29 @@
     ".dc-more[open] summary .dc-plus{transform:rotate(45deg)}",
     ".dc-more summary span{margin-left:auto;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#4d5b74;font-weight:600}",
     ".dc-more-body{padding:2px 13px 13px}",
+
+    /* budget + timeline, revealed once a project category is chosen */
+    ".dc-gate{animation:dcFadeUp .26s cubic-bezier(.2,.9,.2,1) both}",
+
+    /* attachment: a closed opt-in row until the visitor asks for it */
+    ".dc-attach-toggle{display:flex;align-items:center;gap:8px;width:100%;padding:11px 12px;border:1px dashed #22304d;border-radius:11px;background:rgba(9,15,26,.5);color:#9fb0ca;font-family:inherit;font-size:11.5px;font-weight:650;text-align:left;cursor:pointer;transition:border-color .2s,background .2s,color .2s}",
+    ".dc-attach-toggle:hover{border-color:rgba(56,189,248,.45);background:rgba(56,189,248,.06);color:#e8eef9}",
+    ".dc-attach-toggle:focus-visible{outline:2px solid rgba(56,189,248,.65);outline-offset:2px}",
+    ".dc-attach-toggle svg{width:13px;height:13px;flex:none;color:#5c6a82;transition:color .2s}",
+    ".dc-attach-toggle:hover svg{color:var(--accent)}",
+    ".dc-attach-toggle-hint{margin-left:auto;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#4d5b74;font-weight:600}",
+    ".dc-file{position:relative;display:flex;align-items:center;gap:9px;padding:8px;border:1px dashed #22304d;border-radius:11px;background:rgba(8,13,24,.62);transition:border-color .2s,background .2s;animation:dcFadeUp .22s ease both}",
+    ".dc-file:hover{border-color:rgba(56,189,248,.45);background:rgba(56,189,248,.05)}",
+    ".dc-file[data-filled='true']{border-style:solid;border-color:rgba(56,189,248,.34);background:rgba(56,189,248,.06)}",
+    ".dc-file input{position:absolute;width:1px;height:1px;opacity:0;clip-path:inset(50%);overflow:hidden;border:0;padding:0;margin:0;white-space:nowrap}",
+    ".dc-file-btn{flex:none;padding:7px 11px;border-radius:8px;border:1px solid #2a3a5c;background:rgba(56,189,248,.12);color:#cfe3ff;font-size:11.5px;font-weight:650;letter-spacing:.01em;cursor:pointer;transition:border-color .18s,background .18s,color .18s}",
+    ".dc-file-btn:hover{border-color:rgba(56,189,248,.55);background:rgba(56,189,248,.2);color:#e8eef9}",
+    ".dc-file input:focus-visible ~ .dc-file-btn{outline:2px solid rgba(56,189,248,.7);outline-offset:2px}",
+    ".dc-file-name{min-width:0;flex:1;font-size:11.5px;line-height:1.45;color:#6b7a95;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
+    ".dc-file[data-filled='true'] .dc-file-name{color:#dbe6f7}",
+    ".dc-file-remove{flex:none;width:26px;height:26px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:#7f8ba3;cursor:pointer;font-family:inherit;transition:background .18s,color .18s}",
+    ".dc-file-remove:hover{background:rgba(248,113,113,.14);color:#fca5a5}",
+    ".dc-file-remove svg{width:12px;height:12px}",
 
     /* banner */
     ".dc-banner{display:none;margin:0 0 14px;padding:10px 12px;border-radius:10px;border:1px solid rgba(248,113,113,.32);background:rgba(248,113,113,.08);color:#fca5a5;font-size:12px;line-height:1.5}",
@@ -217,6 +242,8 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
     chevron:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+    paperclip:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.19 9.19a2 2 0 0 1-2.83-2.83l8.49-8.49"/></svg>',
   };
 
   // Mirrors src/lib/service-catalog.ts. Labels are cosmetic; ids are the API
@@ -306,6 +333,53 @@
   var BUDGETS = ["Under ₹25k", "₹25k – ₹1L", "₹1L – ₹5L", "₹5L+", "Not sure yet"];
   var TIMELINES = ["ASAP", "2–4 weeks", "1–3 months", "Flexible"];
   var REQUIREMENTS = ["name", "contact", "service", "requirement"];
+
+  // One optional attachment travels as base64 inside the JSON payload, so the
+  // endpoint stays a plain POST and the encoded body still clears the 4.5 MB
+  // serverless request limit with room for the brief itself.
+  var MAX_ATTACHMENT_BYTES = 2.5 * 1024 * 1024;
+  var ATTACHMENT_EXTS = [
+    "pdf",
+    "png",
+    "jpg",
+    "jpeg",
+    "webp",
+    "gif",
+    "doc",
+    "docx",
+    "xls",
+    "xlsx",
+    "txt",
+    "zip",
+  ];
+  var ATTACHMENT_ACCEPT =
+    ".pdf,.png,.jpg,.jpeg,.webp,.gif,.doc,.docx,.xls,.xlsx,.txt,.zip,application/pdf,image/*";
+  var MIME_BY_EXT = {
+    pdf: "application/pdf",
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    webp: "image/webp",
+    gif: "image/gif",
+    doc: "application/msword",
+    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    xls: "application/vnd.ms-excel",
+    xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    txt: "text/plain",
+    zip: "application/zip",
+  };
+
+  function extensionOf(filename) {
+    var parts = String(filename || "").toLowerCase().split(".");
+    return parts.length > 1 ? parts.pop() : "";
+  }
+
+  function formatBytes(bytes) {
+    if (bytes >= 1024 * 1024) {
+      return (bytes / (1024 * 1024)).toFixed(bytes >= 10 * 1024 * 1024 ? 0 : 1) + " MB";
+    }
+    return Math.max(1, Math.round(bytes / 1024)) + " KB";
+  }
 
   function findCategory(id) {
     for (var i = 0; i < CATEGORIES.length; i += 1) {
@@ -404,12 +478,30 @@
       '<p class="dc-err" data-err="requirement"></p>',
       '</div>',
       '<div class="dc-field">',
+      '<button class="dc-attach-toggle" type="button" data-attach-toggle aria-expanded="false" aria-controls="dc-file-row">' +
+        ICONS.paperclip +
+        '<span>Add attachment</span>' +
+        '<span class="dc-attach-toggle-hint">PDF · doc · max 2.5 MB</span>' +
+        '</button>',
+      '<div class="dc-file" id="dc-file-row" data-file data-filled="false" hidden>',
+      '<input id="dc-attachment" name="attachment" type="file" accept="' +
+        ATTACHMENT_ACCEPT +
+        '" />',
+      '<label class="dc-file-btn" for="dc-attachment">Choose file</label>',
+      '<span class="dc-file-name" data-file-name>No file selected</span>',
+      '<button class="dc-file-remove" type="button" data-file-remove aria-label="Close attachment picker">' +
+        ICONS.close +
+        '</button>',
+      '</div>',
+      '<p class="dc-err" data-err="attachment"></p>',
+      '</div>',
+      '<div class="dc-field" data-gate="budget" hidden>',
       '<span class="dc-label">Budget<span class="dc-opt">Optional</span></span>',
       '<div class="dc-chips" role="radiogroup" aria-label="Budget">',
       BUDGETS.map(function (option) { return chip("budget", option, option); }).join(""),
       '</div>',
       '</div>',
-      '<div class="dc-field">',
+      '<div class="dc-field" data-gate="timeline" hidden>',
       '<span class="dc-label">Timeline<span class="dc-opt">Optional</span></span>',
       '<div class="dc-chips" role="radiogroup" aria-label="Timeline">',
       TIMELINES.map(function (option) { return chip("timeline", option, option); }).join(""),
@@ -477,6 +569,12 @@
     var honeypot = shadow.querySelector(".dc-hp");
     var serviceField = shadow.querySelector("[data-service-field]");
     var serviceList = shadow.querySelector("[data-service-list]");
+    var gateFields = shadow.querySelectorAll("[data-gate]");
+    var attachToggle = shadow.querySelector("[data-attach-toggle]");
+    var attachmentInput = shadow.querySelector("#dc-attachment");
+    var attachmentRow = shadow.querySelector("[data-file]");
+    var attachmentLabel = shadow.querySelector("[data-file-name]");
+    var attachmentRemove = shadow.querySelector("[data-file-remove]");
     var fields = {
       name: shadow.querySelector("#dc-name"),
       email: shadow.querySelector("#dc-email"),
@@ -487,6 +585,7 @@
       link: shadow.querySelector("#dc-link"),
     };
     var values = { budget: "", timeline: "", service: "" };
+    var attachment = null;
     var contactMethod = "email";
     var context = { source: "" };
     var previousFocus = null;
@@ -560,7 +659,98 @@
         ? category.hint
         : "A website, an online store, an app…";
       setError("service", "");
+      renderGates(category);
       refreshMeter();
+    }
+
+    // Budget and timeline are only meaningful for an actual project, so they
+    // stay locked until a project category is picked. A general enquiry keeps
+    // the form short, and anything already chosen is dropped when they hide.
+    function renderGates(category) {
+      var show = Boolean(category) && category.id !== "general";
+      Array.prototype.forEach.call(gateFields, function (node) {
+        node.hidden = !show;
+      });
+      if (show) return;
+      values.budget = "";
+      values.timeline = "";
+      Array.prototype.forEach.call(
+        shadow.querySelectorAll('[data-group="budget"], [data-group="timeline"]'),
+        function (node) {
+          node.setAttribute("aria-checked", "false");
+        },
+      );
+    }
+
+    function setAttachOpen(open) {
+      attachmentRow.hidden = !open;
+      attachToggle.hidden = open;
+      attachToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
+    function renderAttachment() {
+      var filled = Boolean(attachment);
+      attachmentRow.setAttribute("data-filled", filled ? "true" : "false");
+      attachmentRemove.setAttribute(
+        "aria-label",
+        filled ? "Remove attachment" : "Close attachment picker",
+      );
+      attachmentLabel.textContent = filled
+        ? attachment.name + " · " + formatBytes(attachment.size)
+        : "No file selected";
+    }
+
+    function clearAttachment() {
+      attachment = null;
+      if (attachmentInput) attachmentInput.value = "";
+      renderAttachment();
+      setError("attachment", "");
+    }
+
+    function readAttachment(event) {
+      var file = event.target.files && event.target.files[0];
+      if (!file) return;
+      var ext = extensionOf(file.name);
+
+      if (ATTACHMENT_EXTS.indexOf(ext) === -1) {
+        clearAttachment();
+        setError("attachment", "Attach a PDF, image, Word/Excel, TXT or ZIP file.");
+        return;
+      }
+
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        var tooBig = formatBytes(file.size);
+        clearAttachment();
+        setError(
+          "attachment",
+          "That file is " + tooBig + " — the limit is 2.5 MB. Send a link instead.",
+        );
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.onload = function () {
+        var result = String(reader.result || "");
+        var comma = result.indexOf(",");
+        if (comma < 0) {
+          clearAttachment();
+          setError("attachment", "That file could not be read. Try another one.");
+          return;
+        }
+        attachment = {
+          name: file.name.slice(0, 160),
+          type: file.type || MIME_BY_EXT[ext] || "application/octet-stream",
+          size: file.size,
+          data: result.slice(comma + 1),
+        };
+        setError("attachment", "");
+        renderAttachment();
+      };
+      reader.onerror = function () {
+        clearAttachment();
+        setError("attachment", "That file could not be read. Try another one.");
+      };
+      reader.readAsDataURL(file);
     }
 
     function setMethod(method, focusActive) {
@@ -612,10 +802,14 @@
         node.setAttribute("aria-checked", "false");
       });
       setMethod("email", false);
+      clearAttachment();
+      setAttachOpen(false);
       renderServices();
-      ["name", "contact", "category", "service", "requirement", "link"].forEach(function (key) {
-        setError(key, "");
-      });
+      ["name", "contact", "category", "service", "requirement", "link", "attachment"].forEach(
+        function (key) {
+          setError(key, "");
+        },
+      );
       banner.textContent = "";
       banner.setAttribute("data-show", "false");
       success.setAttribute("data-show", "false");
@@ -693,6 +887,11 @@
       if (linkError && !firstInvalid) firstInvalid = fields.link;
       refreshMeter();
 
+      if (attachment && !attachment.data) {
+        setError("attachment", "That file could not be read. Try another one.");
+        return;
+      }
+
       if (firstInvalid) {
         firstInvalid.focus({ preventScroll: false });
         return;
@@ -710,6 +909,14 @@
         budget: values.budget,
         timeline: values.timeline,
         link: fields.link.value.trim(),
+        attachment: attachment
+          ? {
+              name: attachment.name,
+              type: attachment.type,
+              size: attachment.size,
+              data: attachment.data,
+            }
+          : undefined,
         botcheck: honeypot.value,
         source: context.source || config.source || location.href,
         pageUrl: location.href,
@@ -846,6 +1053,31 @@
       setError("category", fields.category.value ? "" : "Choose what you need.");
     });
 
+    if (attachmentInput) {
+      attachmentInput.addEventListener("change", readAttachment);
+
+      // The picker stays out of the way until it is asked for: one small row,
+      // then the file input only appears with the visitor's intent.
+      attachToggle.addEventListener("click", function (event) {
+        event.preventDefault();
+        setAttachOpen(true);
+        attachmentInput.focus({ preventScroll: true });
+      });
+
+      attachmentRemove.addEventListener("click", function (event) {
+        event.preventDefault();
+        var hadFile =
+          Boolean(attachment) || Boolean(attachmentInput.files && attachmentInput.files.length);
+        clearAttachment();
+        if (hadFile) {
+          attachmentInput.focus({ preventScroll: true });
+        } else {
+          setAttachOpen(false);
+          attachToggle.focus({ preventScroll: true });
+        }
+      });
+    }
+
     shadow.addEventListener("click", function (event) {
       var target = event.target;
       var closer = target && target.closest ? target.closest("[data-close]") : null;
@@ -898,6 +1130,9 @@
       card.style.setProperty("--my", ((event.clientY - rect.top) / rect.height) * 100 + "%");
     });
 
+    renderAttachment();
+    setAttachOpen(false);
+    renderGates(findCategory(fields.category.value));
     refreshMeter();
 
     if (inline && typeof ResizeObserver !== "undefined") {
@@ -957,7 +1192,7 @@
   });
 
   window.DevContact = {
-    version: "1.0.0",
+    version: "1.1.0",
     open: openModal,
     close: function () {
       if (modal) modal.close();
