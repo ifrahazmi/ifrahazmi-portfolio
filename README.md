@@ -133,6 +133,7 @@ call to action becomes a `tel:` link.
 ![Service picker](docs/screenshots/widget-service-picker.png)
 ![Mobile callback option](docs/screenshots/widget-mobile-callback.png)
 ![Callback confirmation](docs/screenshots/widget-callback-success.png)
+![Widget on a phone](docs/screenshots/widget-mobile-layout.png)
 
 `POST /api/dev-contact` accepts `name`, `category`, `service`, `contactMethod`, exactly one
 of `email`/`phone`, `requirement`, and optionally `company`, `budget`, `timeline`, `link`,
